@@ -48,28 +48,6 @@ async def set_padding(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     context.user_data["padding"] = padding
     await update.message.reply_text(f"Padding set to {padding} px")
 
-async def select_font_size(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    keyboard = [
-        [InlineKeyboardButton("Small", callback_data='font_small'),
-         InlineKeyboardButton("Medium", callback_data='font_medium'),
-         InlineKeyboardButton("Large", callback_data='font_large')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Select font size", reply_markup=reply_markup)
-
-async def font_size_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    query = update.callback_query
-    await query.answer()
-    size_mapping = {
-        'font_small': 0.8,
-        'font_medium': 1.0,
-        'font_large': 1.2
-    }
-    multiplier = size_mapping.get(query.data, 1.0)
-    context.user_data['font_multiplier'] = multiplier
-    size_name = query.data.split('_')[1].capitalize()
-    await query.edit_message_text(f"Font size set to {size_name}")
-
 async def select_theme(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
         [InlineKeyboardButton("Dark", callback_data='theme_dark'),
@@ -133,20 +111,22 @@ async def template_selection(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await query.edit_message_text(f"Template set to {style.capitalize()}")
 
 async def select_fonts(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    Handler for /fonts command. If no valid arguments are provided, display an inline keyboard to choose a font category.
+    """
     args = context.args
     available_categories = ['body', 'header', 'code']
-    if args and args[0].lower() in available_categories:
-        if len(args) > 1:
-            category = args[0].lower()
-            font = " ".join(args[1:])
-            if category == 'body':
-                context.user_data['font_body'] = font
-            elif category == 'header':
-                context.user_data['font_header'] = font
-            elif category == 'code':
-                context.user_data['font_code'] = font
-            await update.message.reply_text(f"{category.capitalize()} font set to {font}")
-            return
+    if args and args[0].lower() in available_categories and len(args) > 1:
+        category = args[0].lower()
+        font = " ".join(args[1:])
+        if category == 'body':
+            context.user_data['font_body'] = font
+        elif category == 'header':
+            context.user_data['font_header'] = font
+        elif category == 'code':
+            context.user_data['font_code'] = font
+        await update.message.reply_text(f"{category.capitalize()} font set to {font}")
+        return
     keyboard = [
         [InlineKeyboardButton("Body Font", callback_data='font_category_body')],
         [InlineKeyboardButton("Header Font", callback_data='font_category_header')],
@@ -158,7 +138,7 @@ async def select_fonts(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def font_category_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
-    category = query.data.split("_", 2)[-1]  # body, header или code
+    category = query.data.split("_", 2)[-1]
     options = []
     if category == 'body':
         for name in BODY_FONTS:
@@ -176,7 +156,7 @@ async def font_category_selection(update: Update, context: ContextTypes.DEFAULT_
 async def font_choice_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
-    data_parts = query.data.split("_", 3)
+    data_parts = query.data.split("_", 3)  # expected format: font_choice_{category}_{fontname}
     if len(data_parts) < 4:
         await query.edit_message_text("Invalid selection")
         return
@@ -194,7 +174,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         "Welcome.\n"
         "Use /model to select your watch model.\n"
-        "Use /fontsize, /theme, /layout, /template, /fonts to set appearance.\n"
+        "Use /theme, /layout, /template, /fonts to set appearance.\n"
         "Set padding with /padding <value> (in pixels).\n"
         "Send Markdown text or a .txt/.md file to generate an image.\n"
         "For HTML preview, use /preview <Markdown>"

@@ -109,10 +109,6 @@ async def layout_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await query.edit_message_text(f"Layout set to {layout.capitalize()}")
 
 async def select_template(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    Command /template. If an argument is provided (e.g. /template modern),
-    the style is set immediately. Otherwise, an inline keyboard is displayed.
-    """
     args = context.args
     available_templates = ['minimalistic', 'modern', 'classic']
     if args and args[0].lower() in available_templates:
@@ -222,13 +218,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         if layout == 'multipage':
             images = render_markdown_to_images_paginated(
                 text, model, font_multiplier, theme, padding,
+                template_style, font_body, font_header, font_code
+            )
+        else:
             images = render_markdown_to_image(
                 text, model, font_multiplier, theme, padding,
                 template_style, font_body, font_header, font_code
             )
-            )
-        else:
-            images = render_markdown_to_image(text, model, font_multiplier, theme, padding, template_style)
         for i, img in enumerate(images):
             await update.message.reply_photo(
                 photo=InputFile(img, filename=f"watch_markdown_{i+1}.png"),
@@ -326,9 +322,6 @@ async def handle_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             text, model, font_multiplier, theme, padding,
             template_style, font_body, font_header, font_code
         )
-    font_code = context.user_data.get('font_code')
-    try:
-        pdf_buffer = render_markdown_to_pdf(text, model, font_multiplier, theme, padding, template_style)
         pdf_buffer.seek(0)
         await update.message.reply_document(
             document=InputFile(pdf_buffer, filename="output.pdf"),

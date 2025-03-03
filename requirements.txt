@@ -5,3 +5,4 @@ Markdown==3.4.4
 imgkit==1.2.2
 Pillow==9.5.0
 pdfkit
+qrcode

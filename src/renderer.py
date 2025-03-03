@@ -4,6 +4,7 @@ from io import BytesIO
 import markdown
 import imgkit
 from PIL import Image
+import pdfkit
 
 from config import PAGE_OVERLAP
 
@@ -213,3 +214,66 @@ def render_markdown_to_images_paginated(text: str, model: dict, font_multiplier:
         buf.seek(0)
         images.append(buf)
     return images
+
+def render_markdown_to_pdf(text: str, model: dict, font_multiplier: float, theme: str, padding: int) -> BytesIO:
+    base_font_size = 16
+    html_body = markdown.markdown(text, extensions=['fenced_code', 'tables'])
+    if theme == "light":
+        bg_color = "white"
+        text_color = "black"
+    else:
+        bg_color = "black"
+        text_color = "white"
+    html = f"""
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width={model['width']}">
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <style>
+          html, body {{
+            width: {model['width']}px;
+            margin: 0;
+            padding: {padding}px;
+            box-sizing: border-box;
+            background-color: {bg_color};
+            color: {text_color};
+          }}
+          body {{
+            font-family: sans-serif;
+            font-size: {base_font_size * font_multiplier}px;
+            line-height: 1.4;
+          }}
+          h1 {{ font-size: {2.0 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
+          h2 {{ font-size: {1.75 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
+          h3 {{ font-size: {1.5 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
+          h4 {{ font-size: {1.25 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
+          pre {{
+            background-color: #333;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+          }}
+          code {{
+            font-family: monospace;
+            background-color: #333;
+            padding: 2px 4px;
+            border-radius: 4px;
+          }}
+        </style>
+      </head>
+      <body>
+        {html_body}
+      </body>
+    </html>
+    """
+    options = {
+        'encoding': 'UTF-8',
+    }
+    try:
+        pdf_bytes = pdfkit.from_string(html, False, options=options)
+    except Exception as e:
+        logger.error("Ошибка при конвертации в PDF", exc_info=e)
+        raise e
+    buf = BytesIO(pdf_bytes)
+    return buf

@@ -5,7 +5,12 @@ from telegram import Update, InputFile, InlineKeyboardButton, InlineKeyboardMark
 from telegram.ext import ContextTypes
 
 from config import WATCH_MODELS
-from renderer import get_html_preview, render_markdown_to_image, render_markdown_to_images_paginated
+from renderer import (
+    get_html_preview,
+    render_markdown_to_image,
+    render_markdown_to_images_paginated,
+    render_markdown_to_pdf
+)
 from utils import get_user_model, get_padding
 
 logger = logging.getLogger(__name__)
@@ -135,6 +140,29 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     except Exception as e:
         logger.error(f"Error processing text: {e}")
         await update.message.reply_text("Error processing request")
+    
+async def handle_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if 'watch_model' not in context.user_data:
+        await update.message.reply_text("Выберите модель часов с помощью /model")
+        return
+    text = update.message.text.replace("/pdf", "", 1).strip()
+    if not text:
+        await update.message.reply_text("Укажите Markdown-текст после /pdf")
+        return
+    font_multiplier = context.user_data.get('font_multiplier', 1.0)
+    theme = context.user_data.get('theme', 'dark')
+    model = get_user_model(context)
+    padding = get_padding(context)
+    try:
+        pdf_buffer = render_markdown_to_pdf(text, model, font_multiplier, theme, padding)
+        pdf_buffer.seek(0)
+        await update.message.reply_document(
+            document=InputFile(pdf_buffer, filename="output.pdf"),
+            caption="PDF создан ℹ️"
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при обработке PDF: {e}")
+        await update.message.reply_text("Ошибка при создании PDF")
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     document = update.message.document

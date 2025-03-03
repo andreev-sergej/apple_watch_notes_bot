@@ -1,4 +1,4 @@
-# Telegram Markdown to Image Bot
+# Telegram AppleWatchNotes Bot
 
 Этот бот конвертирует Markdown-текст или файлы в изображения для отображения на Apple Watch.
 

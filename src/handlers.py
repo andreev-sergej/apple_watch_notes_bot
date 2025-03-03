@@ -12,6 +12,7 @@ from renderer import (
     render_markdown_to_pdf
 )
 from utils import get_user_model, get_padding
+from fonts import BODY_FONTS, HEADER_FONTS, CODE_FONTS
 
 logger = logging.getLogger(__name__)
 
@@ -129,11 +130,69 @@ async def select_template(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def template_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
-    data = query.data  # Expected format, e.g., 'template_modern'
+    data = query.data
     if data.startswith("template_"):
         style = data.split("_", 1)[1]
         context.user_data['template_style'] = style
         await query.edit_message_text(f"Template set to {style.capitalize()}")
+
+async def select_fonts(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    args = context.args
+    available_categories = ['body', 'header', 'code']
+    if args and args[0].lower() in available_categories:
+        if len(args) > 1:
+            category = args[0].lower()
+            font = " ".join(args[1:])
+            if category == 'body':
+                context.user_data['font_body'] = font
+            elif category == 'header':
+                context.user_data['font_header'] = font
+            elif category == 'code':
+                context.user_data['font_code'] = font
+            await update.message.reply_text(f"{category.capitalize()} font set to {font}")
+            return
+    keyboard = [
+        [InlineKeyboardButton("Body Font", callback_data='font_category_body')],
+        [InlineKeyboardButton("Header Font", callback_data='font_category_header')],
+        [InlineKeyboardButton("Code Font", callback_data='font_category_code')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Select font type", reply_markup=reply_markup)
+
+async def font_category_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+    category = query.data.split("_", 2)[-1]  # body, header или code
+    options = []
+    if category == 'body':
+        for name in BODY_FONTS:
+            options.append(InlineKeyboardButton(name, callback_data=f'font_choice_body_{name}'))
+    elif category == 'header':
+        for name in HEADER_FONTS:
+            options.append(InlineKeyboardButton(name, callback_data=f'font_choice_header_{name}'))
+    elif category == 'code':
+        for name in CODE_FONTS:
+            options.append(InlineKeyboardButton(name, callback_data=f'font_choice_code_{name}'))
+    keyboard = [options]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.edit_message_text(f"Select {category} font", reply_markup=reply_markup)
+
+async def font_choice_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+    data_parts = query.data.split("_", 3)
+    if len(data_parts) < 4:
+        await query.edit_message_text("Invalid selection")
+        return
+    category = data_parts[2]
+    font_name = data_parts[3]
+    if category == 'body':
+        context.user_data['font_body'] = BODY_FONTS.get(font_name, font_name)
+    elif category == 'header':
+        context.user_data['font_header'] = HEADER_FONTS.get(font_name, font_name)
+    elif category == 'code':
+        context.user_data['font_code'] = CODE_FONTS.get(font_name, font_name)
+    await query.edit_message_text(f"{category.capitalize()} font set to {font_name}")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(

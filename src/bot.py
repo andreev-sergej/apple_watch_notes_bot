@@ -22,6 +22,9 @@ from handlers import (
     layout_selection,
     select_template,
     template_selection,
+    select_fonts,
+    font_category_selection,
+    font_choice_selection,
     handle_text,
     handle_document,
     handle_preview,
@@ -50,6 +53,7 @@ def main() -> None:
     app.add_handler(CommandHandler("theme", select_theme))
     app.add_handler(CommandHandler("layout", select_layout))
     app.add_handler(CommandHandler("template", select_template))
+    app.add_handler(CommandHandler("fonts", select_fonts))
     app.add_handler(CommandHandler("preview", handle_preview))
     app.add_handler(CommandHandler("pdf", handle_pdf))
 
@@ -58,6 +62,8 @@ def main() -> None:
     app.add_handler(CallbackQueryHandler(theme_selection, pattern='^theme_'))
     app.add_handler(CallbackQueryHandler(layout_selection, pattern='^layout_'))
     app.add_handler(CallbackQueryHandler(template_selection, pattern='^template_'))
+    app.add_handler(CallbackQueryHandler(font_category_selection, pattern='^font_category_'))
+    app.add_handler(CallbackQueryHandler(font_choice_selection, pattern='^font_choice_'))
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))

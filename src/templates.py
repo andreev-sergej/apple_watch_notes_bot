@@ -7,6 +7,7 @@ TEMPLATES = {
     <meta charset="utf-8">
     <meta name="viewport" content="width={width}">
     <title>Minimalistic Template</title>
+    {extra_head}
     <style>
         body {{
             margin: 0;
@@ -48,6 +49,7 @@ TEMPLATES = {
     <meta charset="utf-8">
     <meta name="viewport" content="width={width}">
     <title>Modern Template</title>
+    {extra_head}
     <style>
         body {{
             margin: 0;
@@ -90,6 +92,7 @@ TEMPLATES = {
     <meta charset="utf-8">
     <meta name="viewport" content="width={width}">
     <title>Classic Template</title>
+    {extra_head}
     <style>
         body {{
             margin: 0;

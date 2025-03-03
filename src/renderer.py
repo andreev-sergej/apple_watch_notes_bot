@@ -37,6 +37,22 @@ def build_html(text: str, model: dict, font_multiplier: float, theme: str, paddi
     if font_code is None:
         font_code = "Courier New, monospace"
 
+    links = ""
+    google_fonts = {
+        "Roboto": "Roboto:400,700",
+        "Open Sans": "Open+Sans:400,700",
+        "Roboto Slab": "Roboto+Slab:400,700",
+        "Merriweather": "Merriweather:400,700",
+        "Fira Code": "Fira+Code:400,700",
+        "Source Code Pro": "Source+Code+Pro:400,700",
+    }
+    for font in [font_body, font_header, font_code]:
+        clean_font = font.replace("'", "").strip()
+        if clean_font in google_fonts:
+            link_tag = f'<link href="https://fonts.googleapis.com/css?family={google_fonts[clean_font]}&display=swap" rel="stylesheet">'
+            if link_tag not in links:
+                links += link_tag + "\n"
+
     template = TEMPLATES.get(template_style, TEMPLATES["minimalistic"])["html"]
 
     html = template.format(
@@ -52,7 +68,8 @@ def build_html(text: str, model: dict, font_multiplier: float, theme: str, paddi
         content=html_body,
         font_body=font_body,
         font_header=font_header,
-        font_code=font_code
+        font_code=font_code,
+        extra_head=links  # extra_head placeholder for link tags
     )
     return html
 

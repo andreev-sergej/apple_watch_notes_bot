@@ -23,6 +23,7 @@ from handlers import (
     handle_text,
     handle_document,
     handle_preview,
+    handle_pdf,
     error_handler
 )
 
@@ -48,6 +49,7 @@ def main() -> None:
     app.add_handler(CommandHandler("theme", select_theme))
     app.add_handler(CommandHandler("layout", select_layout))
     app.add_handler(CommandHandler("preview", handle_preview))
+    app.add_handler(CommandHandler("pdf", handle_pdf))
 
     app.add_handler(CallbackQueryHandler(model_selection, pattern='^(se_|series_|ultra_)'))
     app.add_handler(CallbackQueryHandler(font_size_selection, pattern='^font_'))

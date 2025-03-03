@@ -1,4 +1,5 @@
 import logging
+import qrcode
 from io import BytesIO
 
 from telegram import Update, InputFile, InlineKeyboardButton, InlineKeyboardMarkup
@@ -253,3 +254,36 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     logger.error("Error:", exc_info=context.error)
     if update.message:
         await update.message.reply_text("An error occurred")
+
+async def handle_qrcode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    text = update.message.text.replace("/qrcode", "", 1).strip()
+    if not text:
+        await update.message.reply_text("Usage: /qrcode <text to encode>")
+        return
+
+    if 'watch_model' not in context.user_data:
+        await update.message.reply_text("Select a watch model using /model")
+        return
+
+    model = get_user_model(context)
+    size = min(model['width'], model['height'])
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(text)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    img = img.resize((size, size))
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+
+    await update.message.reply_photo(
+        photo=InputFile(buf, filename="qrcode.png"),
+        caption="Here is your QR code!"
+    )

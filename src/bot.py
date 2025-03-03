@@ -14,8 +14,6 @@ from handlers import (
     select_watch_model,
     model_selection,
     set_padding,
-    select_font_size,
-    font_size_selection,
     select_theme,
     theme_selection,
     select_layout,
@@ -49,7 +47,6 @@ def main() -> None:
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("model", select_watch_model))
     app.add_handler(CommandHandler("padding", set_padding))
-    app.add_handler(CommandHandler("fontsize", select_font_size))
     app.add_handler(CommandHandler("theme", select_theme))
     app.add_handler(CommandHandler("layout", select_layout))
     app.add_handler(CommandHandler("template", select_template))
@@ -58,7 +55,6 @@ def main() -> None:
     app.add_handler(CommandHandler("pdf", handle_pdf))
 
     app.add_handler(CallbackQueryHandler(model_selection, pattern='^(se_|series_|ultra_)'))
-    app.add_handler(CallbackQueryHandler(font_size_selection, pattern='^font_(small|medium|large)$'))
     app.add_handler(CallbackQueryHandler(theme_selection, pattern='^theme_'))
     app.add_handler(CallbackQueryHandler(layout_selection, pattern='^layout_'))
     app.add_handler(CallbackQueryHandler(template_selection, pattern='^template_'))

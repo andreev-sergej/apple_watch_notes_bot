@@ -11,7 +11,9 @@ from templates import TEMPLATES
 
 logger = logging.getLogger(__name__)
 
-def build_html(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> str:
+def build_html(text: str, model: dict, font_multiplier: float, theme: str, padding: int,
+               template_style: str = "minimalistic",
+               font_body: str = None, font_header: str = None, font_code: str = None) -> str:
     base_font_size = 16
     html_body = markdown.markdown(text, extensions=['fenced_code', 'tables'])
     
@@ -28,6 +30,13 @@ def build_html(text: str, model: dict, font_multiplier: float, theme: str, paddi
     h3_size = 1.5 * base_font_size * font_multiplier
     h4_size = 1.25 * base_font_size * font_multiplier
 
+    if font_body is None:
+        font_body = "Arial, sans-serif"
+    if font_header is None:
+        font_header = "Georgia, serif"
+    if font_code is None:
+        font_code = "Courier New, monospace"
+
     template = TEMPLATES.get(template_style, TEMPLATES["minimalistic"])["html"]
 
     html = template.format(
@@ -40,7 +49,10 @@ def build_html(text: str, model: dict, font_multiplier: float, theme: str, paddi
         h4_size=h4_size,
         bg_color=bg_color,
         text_color=text_color,
-        content=html_body
+        content=html_body,
+        font_body=font_body,
+        font_header=font_header,
+        font_code=font_code
     )
     return html
 

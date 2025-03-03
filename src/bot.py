@@ -26,7 +26,8 @@ from handlers import (
     handle_document,
     handle_preview,
     handle_pdf,
-    error_handler
+    error_handler,
+    handle_qrcode
 )
 
 logging.basicConfig(
@@ -52,6 +53,8 @@ def main() -> None:
     app.add_handler(CommandHandler("template", select_template))
     app.add_handler(CommandHandler("preview", handle_preview))
     app.add_handler(CommandHandler("pdf", handle_pdf))
+    app.add_handler(CommandHandler("qrcode", handle_qrcode))
+
 
     app.add_handler(CallbackQueryHandler(model_selection, pattern='^(se_|series_|ultra_)'))
     app.add_handler(CallbackQueryHandler(font_size_selection, pattern='^font_'))

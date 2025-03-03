@@ -32,15 +32,15 @@ async def model_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def set_padding(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     args = context.args
     if not args:
-        await update.message.reply_text("Usage: /padding <value> 📏")
+        await update.message.reply_text("Usage: /padding <value> ")
         return
     try:
         padding = int(args[0])
     except ValueError:
-        await update.message.reply_text("Invalid value. Please provide an integer. 📏")
+        await update.message.reply_text("Invalid value. Please provide an integer. ")
         return
     context.user_data["padding"] = padding
-    await update.message.reply_text(f"Padding set to {padding} px 📏")
+    await update.message.reply_text(f"Padding set to {padding} px ")
 
 async def select_font_size(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
@@ -49,7 +49,7 @@ async def select_font_size(update: Update, context: ContextTypes.DEFAULT_TYPE) -
          InlineKeyboardButton("Large", callback_data='font_large')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Select font size ℹ️", reply_markup=reply_markup)
+    await update.message.reply_text("Select font size ", reply_markup=reply_markup)
 
 async def font_size_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -62,7 +62,7 @@ async def font_size_selection(update: Update, context: ContextTypes.DEFAULT_TYPE
     multiplier = size_mapping.get(query.data, 1.0)
     context.user_data['font_multiplier'] = multiplier
     size_name = query.data.split('_')[1].capitalize()
-    await query.edit_message_text(f"Font size set to {size_name} ℹ️")
+    await query.edit_message_text(f"Font size set to {size_name} ")
 
 async def select_theme(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
@@ -70,7 +70,7 @@ async def select_theme(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
          InlineKeyboardButton("Light", callback_data='theme_light')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Select theme ℹ️", reply_markup=reply_markup)
+    await update.message.reply_text("Select theme ", reply_markup=reply_markup)
 
 async def theme_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -81,7 +81,7 @@ async def theme_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     }
     theme = theme_mapping.get(query.data, 'dark')
     context.user_data['theme'] = theme
-    await query.edit_message_text(f"Theme set to {theme.capitalize()} ℹ️")
+    await query.edit_message_text(f"Theme set to {theme.capitalize()} ")
 
 async def select_layout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
@@ -89,7 +89,7 @@ async def select_layout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
          InlineKeyboardButton("Multi-Page", callback_data='layout_multipage')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Select layout ℹ️", reply_markup=reply_markup)
+    await update.message.reply_text("Select layout ", reply_markup=reply_markup)
 
 async def layout_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -100,21 +100,21 @@ async def layout_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     }
     layout = layout_mapping.get(query.data, 'continuous')
     context.user_data['layout'] = layout
-    await query.edit_message_text(f"Layout set to {layout.capitalize()} ℹ️")
+    await query.edit_message_text(f"Layout set to {layout.capitalize()} ")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "Welcome.\n"
+        "Welcome, this is @apple_watch_notes_bot\n"
         "Use /model to select your watch model.\n"
         "Use /fontsize, /theme, /layout to set appearance.\n"
         "Set padding with /padding <value> (in pixels).\n"
         "Send Markdown text or a .txt/.md file to generate an image.\n"
-        "For HTML preview, use /preview <Markdown> ℹ️"
+        "For HTML preview, use /preview <Markdown> "
     )
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if 'watch_model' not in context.user_data:
-        await update.message.reply_text("Select a watch model first using /model ℹ️")
+        await update.message.reply_text("Select a watch model first using /model ")
         return
     text = update.message.text
     font_multiplier = context.user_data.get('font_multiplier', 1.0)
@@ -134,13 +134,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             )
     except Exception as e:
         logger.error(f"Error processing text: {e}")
-        await update.message.reply_text("Error processing request ℹ️")
+        await update.message.reply_text("Error processing request")
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     document = update.message.document
     file_name = document.file_name.lower()
     if not (file_name.endswith('.txt') or file_name.endswith('.md')):
-        await update.message.reply_text("Upload a .txt or .md file ℹ️")
+        await update.message.reply_text("Upload a .txt or .md file")
         return
     try:
         file = await document.get_file()
@@ -148,10 +148,10 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         text = file_bytes.decode('utf-8')
     except Exception as e:
         logger.error(f"Error downloading file: {e}")
-        await update.message.reply_text("Error downloading file ℹ️")
+        await update.message.reply_text("Error downloading file")
         return
     if 'watch_model' not in context.user_data:
-        await update.message.reply_text("Select a watch model using /model ℹ️")
+        await update.message.reply_text("Select a watch model using /model ")
         return
     font_multiplier = context.user_data.get('font_multiplier', 1.0)
     theme = context.user_data.get('theme', 'dark')
@@ -170,15 +170,15 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             )
     except Exception as e:
         logger.error(f"Error processing file: {e}")
-        await update.message.reply_text("Error processing file ℹ️")
+        await update.message.reply_text("Error processing file")
 
 async def handle_preview(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if 'watch_model' not in context.user_data:
-        await update.message.reply_text("Select a watch model using /model ℹ️")
+        await update.message.reply_text("Select a watch model using /model ")
         return
     text = update.message.text.replace("/preview", "", 1).strip()
     if not text:
-        await update.message.reply_text("Provide Markdown text after /preview ℹ️")
+        await update.message.reply_text("Provide Markdown text after /preview ")
         return
     font_multiplier = context.user_data.get('font_multiplier', 1.0)
     theme = context.user_data.get('theme', 'dark')
@@ -187,9 +187,9 @@ async def handle_preview(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     html = get_html_preview(text, model, font_multiplier, theme, padding)
     buf = BytesIO(html.encode('utf-8'))
     buf.name = "preview.html"
-    await update.message.reply_document(document=InputFile(buf), filename="preview.html", caption="HTML Preview ℹ️")
+    await update.message.reply_document(document=InputFile(buf), filename="preview.html", caption="HTML Preview ")
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.error("Error:", exc_info=context.error)
     if update.message:
-        await update.message.reply_text("An error occurred ℹ️")
+        await update.message.reply_text("An error occurred")

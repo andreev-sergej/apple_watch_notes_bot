@@ -11,16 +11,15 @@ TEMPLATES = {
         body {{
             margin: 0;
             padding: {padding}px;
-            font-family: Arial, sans-serif;
+            font-family: {font_body};
             font-size: {font_size}px;
             background-color: {bg_color};
             color: {text_color};
             line-height: 1.6;
         }}
-        h1 {{ font-size: {h1_size}px; }}
-        h2 {{ font-size: {h2_size}px; }}
-        h3 {{ font-size: {h3_size}px; }}
-        h4 {{ font-size: {h4_size}px; }}
+        h1, h2, h3, h4 {{
+            font-family: {font_header};
+        }}
         pre {{
             background-color: #f4f4f4;
             padding: 10px;
@@ -28,7 +27,7 @@ TEMPLATES = {
             overflow-x: auto;
         }}
         code {{
-            font-family: monospace;
+            font-family: {font_code};
             background-color: #f4f4f4;
             padding: 2px 4px;
             border-radius: 4px;
@@ -53,16 +52,16 @@ TEMPLATES = {
         body {{
             margin: 0;
             padding: {padding}px;
-            font-family: 'Helvetica Neue', sans-serif;
+            font-family: {font_body};
             font-size: {font_size}px;
             background-color: {bg_color};
             color: {text_color};
             line-height: 1.6;
         }}
-        h1 {{ font-size: {h1_size}px; font-weight: 300; }}
-        h2 {{ font-size: {h2_size}px; font-weight: 300; }}
-        h3 {{ font-size: {h3_size}px; font-weight: 300; }}
-        h4 {{ font-size: {h4_size}px; font-weight: 300; }}
+        h1, h2, h3, h4 {{
+            font-family: {font_header};
+            font-weight: 300;
+        }}
         pre {{
             background-color: #eaeaea;
             padding: 10px;
@@ -70,7 +69,7 @@ TEMPLATES = {
             overflow-x: auto;
         }}
         code {{
-            font-family: monospace;
+            font-family: {font_code};
             background-color: #eaeaea;
             padding: 2px 4px;
             border-radius: 4px;
@@ -95,16 +94,16 @@ TEMPLATES = {
         body {{
             margin: 0;
             padding: {padding}px;
-            font-family: 'Times New Roman', serif;
+            font-family: {font_body};
             font-size: {font_size}px;
             background-color: {bg_color};
             color: {text_color};
             line-height: 1.6;
         }}
-        h1 {{ font-size: {h1_size}px; font-weight: bold; }}
-        h2 {{ font-size: {h2_size}px; font-weight: bold; }}
-        h3 {{ font-size: {h3_size}px; font-weight: bold; }}
-        h4 {{ font-size: {h4_size}px; font-weight: bold; }}
+        h1, h2, h3, h4 {{
+            font-family: {font_header};
+            font-weight: bold;
+        }}
         pre {{
             background-color: #fafafa;
             padding: 10px;
@@ -112,7 +111,7 @@ TEMPLATES = {
             overflow-x: auto;
         }}
         code {{
-            font-family: monospace;
+            font-family: {font_code};
             background-color: #fafafa;
             padding: 2px 4px;
             border-radius: 4px;

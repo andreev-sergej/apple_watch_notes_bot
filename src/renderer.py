@@ -7,116 +7,48 @@ from PIL import Image
 import pdfkit
 
 from config import PAGE_OVERLAP
+from templates import TEMPLATES
 
 logger = logging.getLogger(__name__)
 
-def get_html_preview(text: str, model: dict, font_multiplier: float, theme: str, padding: int) -> str:
+def build_html(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> str:
     base_font_size = 16
     html_body = markdown.markdown(text, extensions=['fenced_code', 'tables'])
+    
     if theme == "light":
         bg_color = "white"
         text_color = "black"
     else:
         bg_color = "black"
         text_color = "white"
-    html = f"""
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width={model['width']}">
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <style>
-          html, body {{
-            width: {model['width']}px;
-            margin: 0;
-            padding: {padding}px;
-            box-sizing: border-box;
-            background-color: {bg_color};
-            color: {text_color};
-          }}
-          body {{
-            font-family: sans-serif;
-            font-size: {base_font_size * font_multiplier}px;
-            line-height: 1.4;
-          }}
-          h1 {{ font-size: {2.0 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h2 {{ font-size: {1.75 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h3 {{ font-size: {1.5 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h4 {{ font-size: {1.25 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          pre {{
-            background-color: #333;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-          }}
-          code {{
-            font-family: monospace;
-            background-color: #333;
-            padding: 2px 4px;
-            border-radius: 4px;
-          }}
-        </style>
-      </head>
-      <body>
-        {html_body}
-      </body>
-    </html>
-    """
+    
+    font_size = base_font_size * font_multiplier
+    h1_size = 2.0 * base_font_size * font_multiplier
+    h2_size = 1.75 * base_font_size * font_multiplier
+    h3_size = 1.5 * base_font_size * font_multiplier
+    h4_size = 1.25 * base_font_size * font_multiplier
+
+    template = TEMPLATES.get(template_style, TEMPLATES["minimalistic"])["html"]
+
+    html = template.format(
+        width=model['width'],
+        padding=padding,
+        font_size=font_size,
+        h1_size=h1_size,
+        h2_size=h2_size,
+        h3_size=h3_size,
+        h4_size=h4_size,
+        bg_color=bg_color,
+        text_color=text_color,
+        content=html_body
+    )
     return html
 
-def render_markdown_to_image(text: str, model: dict, font_multiplier: float, theme: str, padding: int) -> list:
-    base_font_size = 16
-    html_body = markdown.markdown(text, extensions=['fenced_code', 'tables'])
-    if theme == "light":
-        bg_color = "white"
-        text_color = "black"
-    else:
-        bg_color = "black"
-        text_color = "white"
-    html = f"""
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width={model['width']}, height={model['height']}">
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <style>
-          html, body {{
-            width: {model['width']}px;
-            height: {model['height']}px;
-            margin: 0;
-            padding: {padding}px;
-            box-sizing: border-box;
-            background-color: {bg_color};
-            color: {text_color};
-          }}
-          body {{
-            font-family: sans-serif;
-            font-size: {base_font_size * font_multiplier}px;
-            line-height: 1.4;
-          }}
-          h1 {{ font-size: {2.0 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h2 {{ font-size: {1.75 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h3 {{ font-size: {1.5 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h4 {{ font-size: {1.25 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          pre {{
-            background-color: #333;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-          }}
-          code {{
-            font-family: monospace;
-            background-color: #333;
-            padding: 2px 4px;
-            border-radius: 4px;
-          }}
-        </style>
-      </head>
-      <body>
-        {html_body}
-      </body>
-    </html>
-    """
+def get_html_preview(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> str:
+    return build_html(text, model, font_multiplier, theme, padding, template_style)
+
+def render_markdown_to_image(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> list:
+    html = build_html(text, model, font_multiplier, theme, padding, template_style)
     options = {
         'width': model['width'],
         'height': model['height'],
@@ -127,63 +59,13 @@ def render_markdown_to_image(text: str, model: dict, font_multiplier: float, the
     try:
         img_bytes = imgkit.from_string(html, False, options=options)
     except Exception as e:
-        logger.error("Error rendering Markdown to image", exc_info=e)
+        logger.error("Ошибка рендеринга Markdown в изображение", exc_info=e)
         raise e
     buf = BytesIO(img_bytes)
     return [buf]
 
-def render_markdown_to_images_paginated(text: str, model: dict, font_multiplier: float, theme: str, padding: int) -> list:
-    base_font_size = 16
-    html_body = markdown.markdown(text, extensions=['fenced_code', 'tables'])
-    if theme == "light":
-        bg_color = "white"
-        text_color = "black"
-    else:
-        bg_color = "black"
-        text_color = "white"
-    html = f"""
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width={model['width']}">
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <style>
-          html, body {{
-            width: {model['width']}px;
-            margin: 0;
-            padding: {padding}px;
-            box-sizing: border-box;
-            background-color: {bg_color};
-            color: {text_color};
-          }}
-          body {{
-            font-family: sans-serif;
-            font-size: {base_font_size * font_multiplier}px;
-            line-height: 1.4;
-          }}
-          h1 {{ font-size: {2.0 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h2 {{ font-size: {1.75 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h3 {{ font-size: {1.5 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h4 {{ font-size: {1.25 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          pre {{
-            background-color: #333;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-          }}
-          code {{
-            font-family: monospace;
-            background-color: #333;
-            padding: 2px 4px;
-            border-radius: 4px;
-          }}
-        </style>
-      </head>
-      <body>
-        {html_body}
-      </body>
-    </html>
-    """
+def render_markdown_to_images_paginated(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> list:
+    html = build_html(text, model, font_multiplier, theme, padding, template_style)
     options = {
         'width': model['width'],
         'disable-smart-width': '',
@@ -215,58 +97,8 @@ def render_markdown_to_images_paginated(text: str, model: dict, font_multiplier:
         images.append(buf)
     return images
 
-def render_markdown_to_pdf(text: str, model: dict, font_multiplier: float, theme: str, padding: int) -> BytesIO:
-    base_font_size = 16
-    html_body = markdown.markdown(text, extensions=['fenced_code', 'tables'])
-    if theme == "light":
-        bg_color = "white"
-        text_color = "black"
-    else:
-        bg_color = "black"
-        text_color = "white"
-    html = f"""
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width={model['width']}">
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <style>
-          html, body {{
-            width: {model['width']}px;
-            margin: 0;
-            padding: {padding}px;
-            box-sizing: border-box;
-            background-color: {bg_color};
-            color: {text_color};
-          }}
-          body {{
-            font-family: sans-serif;
-            font-size: {base_font_size * font_multiplier}px;
-            line-height: 1.4;
-          }}
-          h1 {{ font-size: {2.0 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h2 {{ font-size: {1.75 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h3 {{ font-size: {1.5 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          h4 {{ font-size: {1.25 * base_font_size * font_multiplier}px; margin: 0.5em 0; }}
-          pre {{
-            background-color: #333;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-          }}
-          code {{
-            font-family: monospace;
-            background-color: #333;
-            padding: 2px 4px;
-            border-radius: 4px;
-          }}
-        </style>
-      </head>
-      <body>
-        {html_body}
-      </body>
-    </html>
-    """
+def render_markdown_to_pdf(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> BytesIO:
+    html = build_html(text, model, font_multiplier, theme, padding, template_style)
     options = {
         'encoding': 'UTF-8',
     }

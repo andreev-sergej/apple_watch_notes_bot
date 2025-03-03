@@ -20,6 +20,8 @@ from handlers import (
     theme_selection,
     select_layout,
     layout_selection,
+    select_template,
+    template_selection,
     handle_text,
     handle_document,
     handle_preview,
@@ -34,10 +36,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def main() -> None:
-    """Запуск бота."""
     BOT_TOKEN = os.environ.get("BOT_TOKEN")
     if not BOT_TOKEN:
-        logger.error("BOT_TOKEN не задан в переменных окружения")
+        logger.error("BOT_TOKEN not set in environment variables")
         return
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()
@@ -48,6 +49,7 @@ def main() -> None:
     app.add_handler(CommandHandler("fontsize", select_font_size))
     app.add_handler(CommandHandler("theme", select_theme))
     app.add_handler(CommandHandler("layout", select_layout))
+    app.add_handler(CommandHandler("template", select_template))
     app.add_handler(CommandHandler("preview", handle_preview))
     app.add_handler(CommandHandler("pdf", handle_pdf))
 
@@ -55,6 +57,7 @@ def main() -> None:
     app.add_handler(CallbackQueryHandler(font_size_selection, pattern='^font_'))
     app.add_handler(CallbackQueryHandler(theme_selection, pattern='^theme_'))
     app.add_handler(CallbackQueryHandler(layout_selection, pattern='^layout_'))
+    app.add_handler(CallbackQueryHandler(template_selection, pattern='^template_'))
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))

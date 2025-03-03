@@ -56,11 +56,15 @@ def build_html(text: str, model: dict, font_multiplier: float, theme: str, paddi
     )
     return html
 
-def get_html_preview(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> str:
-    return build_html(text, model, font_multiplier, theme, padding, template_style)
+def get_html_preview(text: str, model: dict, font_multiplier: float, theme: str, padding: int,
+                     template_style: str = "minimalistic",
+                     font_body: str = None, font_header: str = None, font_code: str = None) -> str:
+    return build_html(text, model, font_multiplier, theme, padding, template_style, font_body, font_header, font_code)
 
-def render_markdown_to_image(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> list:
-    html = build_html(text, model, font_multiplier, theme, padding, template_style)
+def render_markdown_to_image(text: str, model: dict, font_multiplier: float, theme: str, padding: int,
+                             template_style: str = "minimalistic",
+                             font_body: str = None, font_header: str = None, font_code: str = None) -> list:
+    html = build_html(text, model, font_multiplier, theme, padding, template_style, font_body, font_header, font_code)
     options = {
         'width': model['width'],
         'height': model['height'],
@@ -71,13 +75,15 @@ def render_markdown_to_image(text: str, model: dict, font_multiplier: float, the
     try:
         img_bytes = imgkit.from_string(html, False, options=options)
     except Exception as e:
-        logger.error("Ошибка рендеринга Markdown в изображение", exc_info=e)
+        logger.error("Error rendering Markdown to image", exc_info=e)
         raise e
     buf = BytesIO(img_bytes)
     return [buf]
 
-def render_markdown_to_images_paginated(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> list:
-    html = build_html(text, model, font_multiplier, theme, padding, template_style)
+def render_markdown_to_images_paginated(text: str, model: dict, font_multiplier: float, theme: str, padding: int,
+                                        template_style: str = "minimalistic",
+                                        font_body: str = None, font_header: str = None, font_code: str = None) -> list:
+    html = build_html(text, model, font_multiplier, theme, padding, template_style, font_body, font_header, font_code)
     options = {
         'width': model['width'],
         'disable-smart-width': '',
@@ -109,15 +115,17 @@ def render_markdown_to_images_paginated(text: str, model: dict, font_multiplier:
         images.append(buf)
     return images
 
-def render_markdown_to_pdf(text: str, model: dict, font_multiplier: float, theme: str, padding: int, template_style: str = "minimalistic") -> BytesIO:
-    html = build_html(text, model, font_multiplier, theme, padding, template_style)
+def render_markdown_to_pdf(text: str, model: dict, font_multiplier: float, theme: str, padding: int,
+                           template_style: str = "minimalistic",
+                           font_body: str = None, font_header: str = None, font_code: str = None) -> BytesIO:
+    html = build_html(text, model, font_multiplier, theme, padding, template_style, font_body, font_header, font_code)
     options = {
         'encoding': 'UTF-8',
     }
     try:
         pdf_bytes = pdfkit.from_string(html, False, options=options)
     except Exception as e:
-        logger.error("Ошибка при конвертации в PDF", exc_info=e)
+        logger.error("Error converting Markdown to PDF", exc_info=e)
         raise e
     buf = BytesIO(pdf_bytes)
     return buf

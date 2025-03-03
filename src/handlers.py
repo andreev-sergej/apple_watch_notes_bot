@@ -198,7 +198,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         "Welcome.\n"
         "Use /model to select your watch model.\n"
-        "Use /fontsize, /theme, /layout, /template to set appearance.\n"
+        "Use /fontsize, /theme, /layout, /template, /fonts to set appearance.\n"
         "Set padding with /padding <value> (in pixels).\n"
         "Send Markdown text or a .txt/.md file to generate an image.\n"
         "For HTML preview, use /preview <Markdown>"
@@ -215,9 +215,18 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     layout = context.user_data.get('layout', 'continuous')
     padding = get_padding(context)
     template_style = context.user_data.get('template_style', 'minimalistic')
+    font_body = context.user_data.get('font_body')
+    font_header = context.user_data.get('font_header')
+    font_code = context.user_data.get('font_code')
     try:
         if layout == 'multipage':
-            images = render_markdown_to_images_paginated(text, model, font_multiplier, theme, padding, template_style)
+            images = render_markdown_to_images_paginated(
+                text, model, font_multiplier, theme, padding,
+            images = render_markdown_to_image(
+                text, model, font_multiplier, theme, padding,
+                template_style, font_body, font_header, font_code
+            )
+            )
         else:
             images = render_markdown_to_image(text, model, font_multiplier, theme, padding, template_style)
         for i, img in enumerate(images):
@@ -252,11 +261,20 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     layout = context.user_data.get('layout', 'continuous')
     padding = get_padding(context)
     template_style = context.user_data.get('template_style', 'minimalistic')
+    font_body = context.user_data.get('font_body')
+    font_header = context.user_data.get('font_header')
+    font_code = context.user_data.get('font_code')
     try:
         if layout == 'multipage':
-            images = render_markdown_to_images_paginated(text, model, font_multiplier, theme, padding, template_style)
+            images = render_markdown_to_images_paginated(
+                text, model, font_multiplier, theme, padding,
+                template_style, font_body, font_header, font_code
+            )
         else:
-            images = render_markdown_to_image(text, model, font_multiplier, theme, padding, template_style)
+            images = render_markdown_to_image(
+                text, model, font_multiplier, theme, padding,
+                template_style, font_body, font_header, font_code
+            )
         for i, img in enumerate(images):
             await update.message.reply_photo(
                 photo=InputFile(img, filename=f"watch_markdown_{i+1}.png"),
@@ -279,7 +297,10 @@ async def handle_preview(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     theme = context.user_data.get('theme', 'dark')
     model = get_user_model(context)
     padding = get_padding(context)
-    html = get_html_preview(text, model, font_multiplier, theme, padding, template_style)
+    font_body = context.user_data.get('font_body')
+    font_header = context.user_data.get('font_header')
+    font_code = context.user_data.get('font_code')
+    html = get_html_preview(text, model, font_multiplier, theme, padding, template_style, font_body, font_header, font_code)
     buf = BytesIO(html.encode('utf-8'))
     buf.name = "preview.html"
     await update.message.reply_document(document=InputFile(buf), filename="preview.html", caption="HTML Preview")
@@ -297,6 +318,15 @@ async def handle_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     theme = context.user_data.get('theme', 'dark')
     model = get_user_model(context)
     padding = get_padding(context)
+    font_body = context.user_data.get('font_body')
+    font_header = context.user_data.get('font_header')
+    font_code = context.user_data.get('font_code')
+    try:
+        pdf_buffer = render_markdown_to_pdf(
+            text, model, font_multiplier, theme, padding,
+            template_style, font_body, font_header, font_code
+        )
+    font_code = context.user_data.get('font_code')
     try:
         pdf_buffer = render_markdown_to_pdf(text, model, font_multiplier, theme, padding, template_style)
         pdf_buffer.seek(0)

@@ -58,7 +58,7 @@ def main() -> None:
     app.add_handler(CommandHandler("pdf", handle_pdf))
 
     app.add_handler(CallbackQueryHandler(model_selection, pattern='^(se_|series_|ultra_)'))
-    app.add_handler(CallbackQueryHandler(font_size_selection, pattern='^font_'))
+    app.add_handler(CallbackQueryHandler(font_size_selection, pattern='^font_(small|medium|large)$'))
     app.add_handler(CallbackQueryHandler(theme_selection, pattern='^theme_'))
     app.add_handler(CallbackQueryHandler(layout_selection, pattern='^layout_'))
     app.add_handler(CallbackQueryHandler(template_selection, pattern='^template_'))

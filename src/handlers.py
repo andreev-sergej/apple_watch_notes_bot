@@ -149,8 +149,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "• /fontsize, /theme, /layout, /template – Set appearance\n"
         "• /padding <value> – Set padding (in pixels)\n"
         "Send Markdown text, a .txt/.md file, or a voice note to generate an image.\n"
-        "For HTML preview, use /preview <Markdown>"
-        "• /qr <URL> – Create a QR-code\n"
+        "For HTML preview, use /preview <Markdown>\n"
+        "/qr <URL> – Create a QR-code\n"
     )
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -295,9 +295,6 @@ async def handle_qrcode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     )
 
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    Convert a voice note to text, create a summary, and render it to an image.
-    """
     if 'watch_model' not in context.user_data:
         await update.message.reply_text("Select a watch model using /model")
         return
@@ -324,7 +321,9 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     try:
         with sr.AudioFile(wav_path) as source:
             audio_data = recognizer.record(source)
-            recognized_text = recognizer.recognize_google(audio_data)
+            user_lang = update.effective_user.language_code
+            lang_code = "ru-RU" if user_lang and user_lang.startswith("ru") else "en-US"
+            recognized_text = recognizer.recognize_google(audio_data, language=lang_code)
     except sr.UnknownValueError:
         await update.message.reply_text("Sorry, could not understand the voice message.")
         os.remove(ogg_path)

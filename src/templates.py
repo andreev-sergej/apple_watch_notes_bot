@@ -124,5 +124,5 @@ TEMPLATES = {
 </body>
 </html>
 """
-    }
+    },
 }

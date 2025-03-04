@@ -6,7 +6,7 @@ from telegram.ext import (
     CommandHandler,
     MessageHandler,
     CallbackQueryHandler,
-    filters
+    filters,
 )
 
 from handlers import (
@@ -28,14 +28,14 @@ from handlers import (
     handle_pdf,
     handle_qrcode,
     handle_voice,
-    error_handler
+    error_handler,
 )
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
 
 def main() -> None:
     BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -56,11 +56,13 @@ def main() -> None:
     app.add_handler(CommandHandler("pdf", handle_pdf))
     app.add_handler(CommandHandler("qrcode", handle_qrcode))
 
-    app.add_handler(CallbackQueryHandler(model_selection, pattern='^(se_|series_|ultra_)'))
-    app.add_handler(CallbackQueryHandler(font_size_selection, pattern='^font_'))
-    app.add_handler(CallbackQueryHandler(theme_selection, pattern='^theme_'))
-    app.add_handler(CallbackQueryHandler(layout_selection, pattern='^layout_'))
-    app.add_handler(CallbackQueryHandler(template_selection, pattern='^template_'))
+    app.add_handler(
+        CallbackQueryHandler(model_selection, pattern="^(se_|series_|ultra_)")
+    )
+    app.add_handler(CallbackQueryHandler(font_size_selection, pattern="^font_"))
+    app.add_handler(CallbackQueryHandler(theme_selection, pattern="^theme_"))
+    app.add_handler(CallbackQueryHandler(layout_selection, pattern="^layout_"))
+    app.add_handler(CallbackQueryHandler(template_selection, pattern="^template_"))
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
@@ -70,5 +72,6 @@ def main() -> None:
     logger.info("Bot started")
     app.run_polling()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -18,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 async def select_watch_model(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
-        [InlineKeyboardButton("SE 40mm", callback_data='se_40mm'),
-         InlineKeyboardButton("SE 44mm", callback_data='se_44mm')],
-        [InlineKeyboardButton("Series 41mm", callback_data='series_41mm'),
-         InlineKeyboardButton("Series 45mm", callback_data='series_45mm')],
-        [InlineKeyboardButton("Ultra 2", callback_data='ultra_2')]
+        [InlineKeyboardButton("⌚ SE 40mm", callback_data='se_40mm'),
+         InlineKeyboardButton("⌚ SE 44mm", callback_data='se_44mm')],
+        [InlineKeyboardButton("⌚ Series 41mm", callback_data='series_41mm'),
+         InlineKeyboardButton("⌚ Series 45mm", callback_data='series_45mm')],
+        [InlineKeyboardButton("⌚ Ultra 2", callback_data='ultra_2')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Select your watch model", reply_markup=reply_markup)
@@ -50,9 +50,9 @@ async def set_padding(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def select_font_size(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
-        [InlineKeyboardButton("Small", callback_data='font_small'),
-         InlineKeyboardButton("Medium", callback_data='font_medium'),
-         InlineKeyboardButton("Large", callback_data='font_large')]
+        [InlineKeyboardButton("🔤 Small", callback_data='font_small'),
+         InlineKeyboardButton("🔤 Medium", callback_data='font_medium'),
+         InlineKeyboardButton("🔤 Large", callback_data='font_large')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Select font size", reply_markup=reply_markup)
@@ -72,8 +72,8 @@ async def font_size_selection(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def select_theme(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
-        [InlineKeyboardButton("Dark", callback_data='theme_dark'),
-         InlineKeyboardButton("Light", callback_data='theme_light')]
+        [InlineKeyboardButton("🌙 Dark", callback_data='theme_dark'),
+         InlineKeyboardButton("☀️ Light", callback_data='theme_light')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Select theme", reply_markup=reply_markup)
@@ -91,8 +91,8 @@ async def theme_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def select_layout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
-        [InlineKeyboardButton("Continuous", callback_data='layout_continuous'),
-         InlineKeyboardButton("Multi-Page", callback_data='layout_multipage')]
+        [InlineKeyboardButton("📜 Continuous", callback_data='layout_continuous'),
+         InlineKeyboardButton("📄 Multi-Page", callback_data='layout_multipage')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Select layout", reply_markup=reply_markup)
@@ -120,9 +120,9 @@ async def select_template(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.message.reply_text(f"Template set to {args[0].capitalize()}")
     else:
         keyboard = [
-            [InlineKeyboardButton("Minimalistic", callback_data='template_minimalistic'),
-             InlineKeyboardButton("Modern", callback_data='template_modern'),
-             InlineKeyboardButton("Classic", callback_data='template_classic')]
+            [InlineKeyboardButton("🎨 Minimalistic", callback_data='template_minimalistic'),
+             InlineKeyboardButton("🎨 Modern", callback_data='template_modern'),
+             InlineKeyboardButton("🎨 Classic", callback_data='template_classic')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text("Select output template style", reply_markup=reply_markup)
@@ -138,10 +138,11 @@ async def template_selection(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "Welcome.\n"
-        "Use /model to select your watch model.\n"
-        "Use /fontsize, /theme, /layout, /template to set appearance.\n"
-        "Set padding with /padding <value> (in pixels).\n"
+        "Welcome to Watch Markdown Renderer!\n"
+        "Commands:\n"
+        "• /model – Select your watch model\n"
+        "• /fontsize, /theme, /layout, /template – Set appearance\n"
+        "• /padding <value> – Set padding (in pixels)\n"
         "Send Markdown text or a .txt/.md file to generate an image.\n"
         "For HTML preview, use /preview <Markdown>"
     )
@@ -277,7 +278,6 @@ async def handle_qrcode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     qr.add_data(text)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
-
     img = img.resize((size, size))
     buf = BytesIO()
     img.save(buf, format="PNG")

@@ -28,5 +28,10 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Run code formatting checks with Black and isort
+        run: |
+          black --check .
+          isort --check-only .
+
       - name: Run tests
         run: pytest

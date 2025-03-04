@@ -6,16 +6,21 @@ TEMPLATES = {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width={width}">
-    <title>Minimalistic Template</title>
+    <title>Minimalistic Template - Watch Markdown Renderer</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
     <style>
         body {{
             margin: 0;
+            background: linear-gradient(135deg, #ececec, #f9f9f9);
+            font-family: 'Roboto', sans-serif;
+        }}
+        .container {{
+            max-width: {width}px;
+            margin: 20px auto;
             padding: {padding}px;
-            font-family: Arial, sans-serif;
-            font-size: {font_size}px;
             background-color: {bg_color};
             color: {text_color};
-            line-height: 1.6;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }}
         h1 {{ font-size: {h1_size}px; }}
         h2 {{ font-size: {h2_size}px; }}
@@ -36,7 +41,9 @@ TEMPLATES = {
     </style>
 </head>
 <body>
-{content}
+    <div class="container">
+        {content}
+    </div>
 </body>
 </html>
 """
@@ -48,16 +55,21 @@ TEMPLATES = {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width={width}">
-    <title>Modern Template</title>
+    <title>Modern Template - Watch Markdown Renderer</title>
+    <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500,700" rel="stylesheet">
     <style>
         body {{
             margin: 0;
-            padding: {padding}px;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
             font-family: 'Helvetica Neue', sans-serif;
-            font-size: {font_size}px;
+        }}
+        .container {{
+            max-width: {width}px;
+            margin: 20px auto;
+            padding: {padding}px;
             background-color: {bg_color};
             color: {text_color};
-            line-height: 1.6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }}
         h1 {{ font-size: {h1_size}px; font-weight: 300; }}
         h2 {{ font-size: {h2_size}px; font-weight: 300; }}
@@ -78,7 +90,9 @@ TEMPLATES = {
     </style>
 </head>
 <body>
-{content}
+    <div class="container">
+        {content}
+    </div>
 </body>
 </html>
 """
@@ -90,16 +104,21 @@ TEMPLATES = {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width={width}">
-    <title>Classic Template</title>
+    <title>Classic Template - Watch Markdown Renderer</title>
+    <link href="https://fonts.googleapis.com/css?family=Times+New+Roman:400,700" rel="stylesheet">
     <style>
         body {{
             margin: 0;
-            padding: {padding}px;
+            background: #f7f7f7;
             font-family: 'Times New Roman', serif;
-            font-size: {font_size}px;
+        }}
+        .container {{
+            max-width: {width}px;
+            margin: 20px auto;
+            padding: {padding}px;
             background-color: {bg_color};
             color: {text_color};
-            line-height: 1.6;
+            border: 1px solid #ddd;
         }}
         h1 {{ font-size: {h1_size}px; font-weight: bold; }}
         h2 {{ font-size: {h2_size}px; font-weight: bold; }}
@@ -120,7 +139,9 @@ TEMPLATES = {
     </style>
 </head>
 <body>
-{content}
+    <div class="container">
+        {content}
+    </div>
 </body>
 </html>
 """

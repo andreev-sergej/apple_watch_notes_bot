@@ -19,8 +19,8 @@ def build_html(text: str, model: dict, font_multiplier: float, theme: str, paddi
         bg_color = "white"
         text_color = "black"
     else:
-        bg_color = "black"
-        text_color = "white"
+        bg_color = "#222222"
+        text_color = "#f0f0f0"
     
     font_size = base_font_size * font_multiplier
     h1_size = 2.0 * base_font_size * font_multiplier
@@ -59,7 +59,7 @@ def render_markdown_to_image(text: str, model: dict, font_multiplier: float, the
     try:
         img_bytes = imgkit.from_string(html, False, options=options)
     except Exception as e:
-        logger.error("Ошибка рендеринга Markdown в изображение", exc_info=e)
+        logger.error("Error rendering Markdown to image", exc_info=e)
         raise e
     buf = BytesIO(img_bytes)
     return [buf]
@@ -105,7 +105,7 @@ def render_markdown_to_pdf(text: str, model: dict, font_multiplier: float, theme
     try:
         pdf_bytes = pdfkit.from_string(html, False, options=options)
     except Exception as e:
-        logger.error("Ошибка при конвертации в PDF", exc_info=e)
+        logger.error("Error converting to PDF", exc_info=e)
         raise e
     buf = BytesIO(pdf_bytes)
     return buf

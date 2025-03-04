@@ -1,5 +1,5 @@
 import pytest
-from src.renderer import build_html
+from renderer import build_html
 
 
 def test_build_html_minimalistic():

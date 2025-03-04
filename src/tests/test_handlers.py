@@ -1,5 +1,5 @@
 import pytest
-from src.handlers import start
+from handlers import start
 
 
 class DummyMessage:

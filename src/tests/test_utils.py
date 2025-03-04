@@ -1,6 +1,6 @@
 import pytest
-from src.utils import get_user_model, get_padding
-from src.config import WATCH_MODELS, DEFAULT_PADDING
+from utils import get_user_model, get_padding
+from config import WATCH_MODELS, DEFAULT_PADDING
 
 
 class DummyContext:

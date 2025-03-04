@@ -27,7 +27,8 @@ from handlers import (
     handle_preview,
     handle_pdf,
     handle_qrcode,
-    handle_voice
+    handle_voice,
+    error_handler
 )
 
 logging.basicConfig(

@@ -1,5 +1,7 @@
 import logging
 import qrcode
+import os
+import tempfile
 from io import BytesIO
 
 from telegram import Update, InputFile, InlineKeyboardButton, InlineKeyboardMarkup
@@ -13,6 +15,9 @@ from renderer import (
     render_markdown_to_pdf
 )
 from utils import get_user_model, get_padding
+
+from pydub import AudioSegment
+import speech_recognition as sr
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +135,7 @@ async def select_template(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def template_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
-    data = query.data  # Expected format, e.g., 'template_modern'
+    data = query.data
     if data.startswith("template_"):
         style = data.split("_", 1)[1]
         context.user_data['template_style'] = style
@@ -138,13 +143,14 @@ async def template_selection(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "Welcome to Watch Markdown Renderer!\n"
+        "Welcome to Apple Watch Notes Bot!\n"
         "Commands:\n"
         "• /model – Select your watch model\n"
         "• /fontsize, /theme, /layout, /template – Set appearance\n"
         "• /padding <value> – Set padding (in pixels)\n"
-        "Send Markdown text or a .txt/.md file to generate an image.\n"
-        "For HTML preview, use /preview <Markdown>"
+        "Send Markdown text, a .txt/.md file, or a voice note to generate an image.\n"
+        "For HTML preview, use /preview <Markdown>\n"
+        "/qr <URL> – Create a QR-code\n"
     )
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -287,3 +293,73 @@ async def handle_qrcode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         photo=InputFile(buf, filename="qrcode.png"),
         caption="Here is your QR code!"
     )
+
+async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if 'watch_model' not in context.user_data:
+        await update.message.reply_text("Select a watch model using /model")
+        return
+
+    voice = update.message.voice
+    file = await voice.get_file()
+
+    with tempfile.NamedTemporaryFile(suffix=".ogg", delete=False) as ogg_file:
+        ogg_path = ogg_file.name
+        voice_bytes = await file.download_as_bytearray()
+        ogg_file.write(voice_bytes)
+
+    wav_path = ogg_path.replace(".ogg", ".wav")
+    try:
+        audio = AudioSegment.from_file(ogg_path, format="ogg")
+        audio.export(wav_path, format="wav")
+    except Exception as e:
+        logger.error("Error converting audio", exc_info=e)
+        await update.message.reply_text("Error processing voice note.")
+        os.remove(ogg_path)
+        return
+
+    recognizer = sr.Recognizer()
+    try:
+        with sr.AudioFile(wav_path) as source:
+            audio_data = recognizer.record(source)
+            user_lang = update.effective_user.language_code
+            lang_code = "ru-RU" if user_lang and user_lang.startswith("ru") else "en-US"
+            recognized_text = recognizer.recognize_google(audio_data, language=lang_code)
+    except sr.UnknownValueError:
+        await update.message.reply_text("Sorry, could not understand the voice message.")
+        os.remove(ogg_path)
+        os.remove(wav_path)
+        return
+    except sr.RequestError as e:
+        await update.message.reply_text("Error during speech recognition service.")
+        os.remove(ogg_path)
+        os.remove(wav_path)
+        return
+
+    def summarize_text(text: str) -> str:
+        sentences = text.split('.')
+        summary = '.'.join([s.strip() for s in sentences if s.strip()][:2])
+        if summary and not summary.endswith('.'):
+            summary += '.'
+        return summary if summary else text
+
+    summary = summarize_text(recognized_text)
+
+    os.remove(ogg_path)
+    os.remove(wav_path)
+
+    font_multiplier = context.user_data.get('font_multiplier', 1.0)
+    theme = context.user_data.get('theme', 'dark')
+    model = get_user_model(context)
+    padding = get_padding(context)
+    template_style = context.user_data.get('template_style', 'minimalistic')
+
+    try:
+        images = render_markdown_to_image(summary, model, font_multiplier, theme, padding, template_style)
+        for i, img in enumerate(images):
+            await update.message.reply_photo(
+                photo=InputFile(img, filename=f"watch_markdown_{i+1}.png"),
+                caption=f"Voice Summary (Page {i+1} - {model['name']})"
+            )
+    except Exception as e:
+        logger.error(f"Error processing voice message: {e}")
+        await update.message.reply_text("Error processing voice message.")

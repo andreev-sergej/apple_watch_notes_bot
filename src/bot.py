@@ -26,8 +26,9 @@ from handlers import (
     handle_document,
     handle_preview,
     handle_pdf,
-    error_handler,
-    handle_qrcode
+    handle_qrcode,
+    handle_voice,
+    error_handler
 )
 
 logging.basicConfig(
@@ -63,6 +64,7 @@ def main() -> None:
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
+    app.add_handler(MessageHandler(filters.VOICE, handle_voice))
     app.add_error_handler(error_handler)
 
     logger.info("Bot started")
